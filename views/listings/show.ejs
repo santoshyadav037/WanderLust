@@ -1,0 +1,101 @@
+<% layout('/layouts/boilerplate') -%>
+<div class="row mt-3">
+    <div class="col  offset-2">
+        <div class="card listing-card" style="width: 40rem; ">
+            <img src="<%= listing.image.url%>" class="card-img-top" alt="listing_image"> 
+            <div class="card-body">
+                <p class="card-text">
+                    <b><%= listing.title %> </b><br>
+                    <%= listing.description %> <br>
+                    &#x20B9; <%= listing.price ? listing.price.toLocaleString('en-IN') : 'N/A' %> <br>
+                    <%= listing.country %> <br>
+                    <%= listing.location %> <br>
+                </p>
+                <div>
+                    <a href="/listings/<%=listing._id %>/edit" class="btn btn-dark add-btn">Edit this information</a><br>
+                    <form action="/listings/<%=listing._id %>?_method=Delete" method="post">
+                        <button class="btn btn-dark add-btn mt-3">Delete this Listings</button>
+                    </form>
+                </div>
+            </div>
+        </div> 
+        <hr>
+
+        
+    </div>
+</div>
+<div class="row">
+    <div class="col-7 mb-3 mt-3 offset-2">
+        <hr>
+        <h4>Leave a Review</h4>
+        <form action="/listings/<%= listing._id %>/reviews" novalidate class="needs-validation form-control" method="post" >
+            <div class="">
+                <label for="rating" class="form-label">rating</label>
+                <input type="range" name="review[rating]" id="rating" min="1" max="5" class="col-5">
+            </div>
+
+            <div>
+                <label for="comment" class="form-label"> Comment</label>
+                <textarea name="review[comment]" id="comment" cols="30" rows="3" class="form-control" required></textarea>
+                <div class="invalid-feedback">Please add some comments for review</div>
+            </div>
+            <button class="btn btn-dark mt-3">Submit</button>
+        </form>
+    </div>
+</div>
+
+<hr>
+<div class="col-10 offset-2">
+    <p><b>All Review</b></p>
+    <div class="row">
+            <% for(review of listing.reviews){ %>
+                <div class="card col-4 mb-3 ms-3">
+                    <div class="card-body">
+                        <h5 class="card-title">John doe</h5>
+                        <p class="card-text " ><%= review.comment %></p>
+                        <p class="card-text "><%= review.rating %>stars</p>
+                        <form action="/listings/<%= listing._id %>/reviews/<%=review._id %>?_method=Delete" method="post">
+                            <button class="mb-3 btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            <% } %>
+    </div>
+</div>
+<!-- <h3>Listing Details:</h3>
+<div class="row " >
+    <div col-8>
+        <img src="<%= listing.image.url %>" 
+        class="card-img-top" 
+        alt="Listing_image" 
+        style="height: 18rem;">
+        <div class="card-img-overlay"></div>
+        <div class="card-body">
+            <ul>
+                <li><b><%= listing.title %> </b></li>
+                <li><%= listing.description %></li>
+                <li>&#x20B9; <%= listing.price ? listing.price.toLocaleString('en-IN') : 'N/A' %></li>
+                <li><%= listing.country %></li>
+                <li><%= listing.location %></li>
+            </ul>
+        </div>
+        <a href="/listings/<%=listing._id %>/edit">Edit this information</a>
+    </div>
+  </div> -->
+
+<!-- <body>
+   
+    <ul>
+        <li><%= listing.title %></li>
+        <li><%= listing.description %></li>
+        <li>&#x20B9; <%= listing.price ? listing.price.toLocaleString('en-IN') : 'N/A' %></li>
+        <li><%= listing.location %></li>
+        <li><%= listing.country %></li>
+        <li><%= listing.image %></li>
+    </ul>
+    <a href="/listings/<%=listing._id %>/edit">Edit this information</a>
+    <br>
+    <form action="/listings/<%=listing._id %>?_method=Delete" method="post">
+        <button>Delete this Listings</button>
+    </form>
+</body> -->
