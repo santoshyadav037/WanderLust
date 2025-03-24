@@ -17,6 +17,11 @@ const  bodyParser = require('body-parser');
 const {Schema} = mongoose;
 const flash = require("connect-flash");
 const session = require("express-session")
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const isLoggedIn = require("../middleware/isLoggedIn.js");
+const User = require("../models/user.js");
+const user = require("../models/user.js");
 
 
 cloudinary.config({
@@ -44,13 +49,13 @@ const validateListing = (req, res, next) =>{
         next();
     }
 } 
-// index route
+//index route
 router.get('/', wrapAsync(async (req,res) => {
     const allListing =  await Listing.find({});
-    res.render("listings/index.ejs",{allListing});
+    res.render("listings/index.ejs",{allListing, user:req.user});
 }));
-// new route
-router.get('/new', (req, res) => {
+//new route
+router.get('/new',(req, res) => {
     res.render("listings/new.ejs");
 });
 // show route 
@@ -80,7 +85,7 @@ upload.single('image'),
         }
  }
 ); 
-//  update route
+// update route
 router.put("/:id",wrapAsync( async (req, res) => {
     if(!req.body.listing){
         throw new ExpressError(400,"Send Valid Data for Listings");
@@ -91,7 +96,7 @@ router.put("/:id",wrapAsync( async (req, res) => {
 })); 
 
 
-// edit route
+//edit route
 router.get("/:id/edit", wrapAsync(async(req, res) => {
     let {id} =req.params;
     const listing = await Listing.findById(id);
@@ -102,7 +107,6 @@ router.get("/:id/edit", wrapAsync(async(req, res) => {
 router.delete("/:id", wrapAsync(async(req, res)=>{
     let {id} = req.params;
     const deletedListing = await Listing.findByIdAndDelete(id);
-    // console.log(deletedListing);
     res.redirect("/listings");
 }));
 

@@ -13,19 +13,21 @@ const {listingSchema} = require("./schema.js");
 const listings = require("./routes/listing.js");
 const reviews = require("./routes/review.js");
 const session = require("express-session");
+const MongoStore = require('connect-mongo');
 const User = require("./models/user.js");
 const schema = require("./schema.js");
-const user = require("./routes/users.js");
+// const user = require("./routes/users.js");
 const map = require("./routes/map.js");
 var bodyParser = require('body-parser');
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
-const newuser = require("./models/newuser.js");
-const newusers = require("./routes/newuser.js")
+// const User = require("./models/user.js");
+const users = require("./routes/user.js")
 
 
 
-const MONGO_URL = "mongodb://127.0.0.1:27017/WanderLust";
+// const MONGO_URL = "mongodb://127.0.0.1:27017/WanderLust";
+const dbUrl = process.env.ATLASDB_URL;
 
 main()
 .then(()=>{ 
@@ -36,7 +38,7 @@ main()
 }); 
 
 async function main(){
-    await mongoose.connect(MONGO_URL);
+    await mongoose.connect(dbUrl);
 }
 
 app.use(express.urlencoded({ extended: true }));
@@ -49,8 +51,20 @@ app.use(methodOverride('_method'));
 app.engine('ejs', ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
 
+
+const store = MongoStore.create({
+    mongoUrl:dbUrl,
+    crypto:{
+        secret:process.env.MYSECRET_CODE,
+    },
+    touchAfter:24*3600,
+});
+store.on("error", () => {
+    console.log("Error in MONGO SESSION STORE",err);
+})
 const sessonOptions = {
-    secret:"mysupersecretcode",
+    store,
+    secret:process.env.MYSECRET_CODE,
     resave: false,
     saveUninitialized: true,
     cookie:{
@@ -69,17 +83,16 @@ app.use((req, res, next )=>{
 
 app.use(passport.initialize());
 app.use(passport.session());  
-passport.use( new LocalStrategy(newuser.authenticate()));
+passport.use( new LocalStrategy(User.authenticate()));
 
-passport.serializeUser(newuser.serializeUser());
-passport.deserializeUser(newuser.deserializeUser());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 
 app.use("/listings", listings);
 app.use("/listings/:id/reviews", reviews);
 app.use("/map", map)
-app.use("/", user);
-app.use("/new", newusers);
+ app.use("/new", users);
 
 
 app.get('/demouser',async(req, res) =>{
